@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "code-review-graph": {
+      "command": "python3",
+      "args": [
+        "-m",
+        "code_review_graph",
+        "serve"
+      ],
+      "cwd": "__PROJECT_DIR__",
+      "type": "stdio"
+    }
+  }
+}

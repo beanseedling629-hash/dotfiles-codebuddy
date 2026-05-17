@@ -1,0 +1,13 @@
+{
+  "name": "codebuddy-cmdAdd",
+  "displayName": "CodeBuddy Command & Skill Helper",
+  "description": "Helper for installing skills and adding slash commands to CodeBuddy. Encodes best practices and avoids common pitfalls (directory structure, naming conventions, dual registration).",
+  "version": "1.0.0",
+  "author": "winered",
+  "keywords": ["codebuddy", "commands", "skills", "slash-commands", "setup"],
+  "commands": [
+    "/cmdAdd:cmd - Add a new slash command (with correct directory structure)",
+    "/cmdAdd:skill - Install or scaffold a new skill",
+    "/cmdAdd:check - Diagnose command/skill registration issues"
+  ]
+}

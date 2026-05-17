@@ -1,0 +1,17 @@
+[
+  {
+    "name": "/opsx:compare",
+    "description": "Compare technical/UX/interaction approaches side-by-side (concise output)",
+    "file": "commands/compare.md"
+  },
+  {
+    "name": "/opsx:harness",
+    "description": "Generate test scenarios, edge cases, and boundary conditions before implementation",
+    "file": "commands/harness.md"
+  },
+  {
+    "name": "/opsx:explore-brief",
+    "description": "Condensed exploration with ~60% less output than explore",
+    "file": "commands/explore-brief.md"
+  }
+]
