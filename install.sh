@@ -158,22 +158,22 @@ if $DRY_RUN; then
 fi
 
 # --- 1. Install codebuddy-cmdAdd skill ---
-echo "--- Step 1/5: codebuddy-cmdAdd skill ---"
+echo "--- Step 1/6: codebuddy-cmdAdd skill ---"
 install_dir "$SCRIPT_DIR/skills/codebuddy-cmdAdd" "$CB_DIR/skills/codebuddy-cmdAdd" "skills/codebuddy-cmdAdd"
 echo ""
 
 # --- 2. Install global IDE commands (cmdAdd) ---
-echo "--- Step 2/5: Global commands/cmdAdd/ ---"
+echo "--- Step 2/6: Global commands/cmdAdd/ ---"
 install_dir "$SCRIPT_DIR/commands/cmdAdd" "$CB_DIR/commands/cmdAdd" "commands/cmdAdd"
 echo ""
 
 # --- 3. Install global IDE commands (opsx) ---
-echo "--- Step 3/5: Global commands/opsx/ ---"
+echo "--- Step 3/6: Global commands/opsx/ ---"
 install_dir "$SCRIPT_DIR/commands/opsx" "$CB_DIR/commands/opsx" "commands/opsx"
 echo ""
 
 # --- 4. OpenSpec patches ---
-echo "--- Step 4/5: OpenSpec custom commands patch ---"
+echo "--- Step 4/6: OpenSpec custom commands patch ---"
 OPENSPEC_DIR="$CB_DIR/skills/openspec"
 
 if [[ ! -d "$OPENSPEC_DIR" ]]; then
@@ -243,7 +243,7 @@ fi
 echo ""
 
 # --- 5. MCP config merge ---
-echo "--- Step 5/5: MCP configuration ---"
+echo "--- Step 5/6: MCP configuration ---"
 MCP_FILE="$CB_DIR/mcp.json"
 MCP_EXAMPLE="$SCRIPT_DIR/mcp.json.example"
 
@@ -290,6 +290,26 @@ else
     warn "mcp.json contains __PROJECT_DIR__ placeholder — edit it to point to your project!"
   fi
 fi
+echo ""
+
+# --- 6. codegraph (CodeBuddy target) ---
+# codegraph 不走 ~/.codebuddy/mcp.json，需 npm 构建 + 自身写入 globalStorage。
+# 此步仅做指引/检测，不复制文件（详见 codegraph-patches/SETUP.md）。
+echo "--- Step 6/6: codegraph (CodeBuddy target) ---"
+if command -v codegraph &>/dev/null; then
+  ok "codegraph command found: $(command -v codegraph)"
+  info "Run to (re)write CodeBuddy MCP config: codegraph install --target=codebuddy --location=global -y"
+else
+  warn "codegraph not installed. To set up (one-time):"
+  echo "    1. git clone https://github.com/colbymchenry/codegraph.git && cd codegraph"
+  echo "    2. cp $SCRIPT_DIR/codegraph-patches/targets/codebuddy.ts src/installer/targets/"
+  echo "       (and manually add 'codebuddy' to types.ts TargetId + register in registry.ts)"
+  echo "    3. npm install && npm run build && npm link"
+  echo "    4. codegraph install --target=codebuddy --location=global -y"
+  echo "    5. cd <your-project> && codegraph init"
+  info "Full guide: codegraph-patches/SETUP.md"
+fi
+warn "NOTE: codegraph writes CodeBuddy's globalStorage settings, NOT ~/.codebuddy/mcp.json."
 echo ""
 
 # --- Summary ---

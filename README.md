@@ -15,6 +15,7 @@
 | **/opsx:explore-brief** | 斜杠命令 | 精简版探索，~60% 更少输出 | ❌ 无（依赖 openspec skill） |
 | **context7** | MCP Server | 提供最新库文档查询（如查询 React/Vue 等最新 API） | ❌ 无（公开 URL） |
 | **code-review-graph** | MCP Server | 代码知识图谱，支持依赖分析、影响范围评估、语义搜索 | ⚠️ 需配置项目路径 |
+| **codegraph** | MCP Server | 预索引代码知识图谱（tree-sitter→本地 SQLite），替代 grep/read 省 token | ⚠️ 需 npm 构建 + `codegraph init` |
 
 ## 各组件详细说明
 
@@ -59,6 +60,15 @@
 - 构建代码知识图谱，支持依赖追踪、影响范围评估
 - 需要 Python 3.10+ 和 `code_review_graph` 包
 - ⚠️ 需配置 `cwd` 为你的项目路径（安装后编辑 `~/.codebuddy/mcp.json`）
+
+**codegraph**（本地 MCP，自加 CodeBuddy target）：
+- [codegraph](https://github.com/colbymchenry/codegraph) 预索引代码知识图谱，agent 查图谱代替 grep/read
+- 官方未一流支持 CodeBuddy（issue #164），本仓 `codegraph-patches/` 自补了 `--target=codebuddy`
+- ⚠️ **与 code-review-graph 不是一回事**：codegraph 写入的是 CodeBuddy **globalStorage** 的
+  `codebuddy_mcp_settings.json`，**不是** `~/.codebuddy/mcp.json`。所以 `mcp.json.example` 里的
+  codegraph 条目只是参考片段，照它手填到 `~/.codebuddy/mcp.json` **不生效**——应用
+  `codegraph install --target=codebuddy --location=global -y` 让它自己写
+- 复现/安装步骤见 [`codegraph-patches/SETUP.md`](codegraph-patches/SETUP.md)
 
 ## 安装方式
 
@@ -165,6 +175,12 @@ dotfiles-codebuddy/
 │   │   └── explore-brief.md
 │   ├── skill.json.append.json     # 需追加到 skill.json 的条目
 │   └── plugin.json.append.json    # 需追加到 plugin.json 的条目
+├── codegraph-patches/             # codegraph 的 CodeBuddy target 补丁
+│   ├── SETUP.md                   # 换机复现步骤 + 关键事实 + 兜底
+│   └── targets/                   # 改好的源码副本（覆盖进官方 codegraph）
+│       ├── codebuddy.ts           # 新增：CodeBuddyTarget 实现
+│       ├── types.ts               # TargetId 加 'codebuddy'
+│       └── registry.ts            # 注册 codebuddyTarget
 └── commands/                      # 全局 IDE 补全命令
     ├── cmdAdd/
     │   ├── cmd.md                 → /cmdAdd:cmd

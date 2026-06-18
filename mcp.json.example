@@ -12,6 +12,16 @@
       ],
       "cwd": "__PROJECT_DIR__",
       "type": "stdio"
+    },
+    "codegraph": {
+      "command": "codegraph",
+      "args": [
+        "serve",
+        "--mcp",
+        "--path",
+        "${workspaceFolder}"
+      ],
+      "type": "stdio"
     }
   }
 }
