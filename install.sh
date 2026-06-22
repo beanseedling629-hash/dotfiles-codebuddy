@@ -158,22 +158,22 @@ if $DRY_RUN; then
 fi
 
 # --- 1. Install codebuddy-cmdAdd skill ---
-echo "--- Step 1/6: codebuddy-cmdAdd skill ---"
+echo "--- Step 1/7: codebuddy-cmdAdd skill ---"
 install_dir "$SCRIPT_DIR/skills/codebuddy-cmdAdd" "$CB_DIR/skills/codebuddy-cmdAdd" "skills/codebuddy-cmdAdd"
 echo ""
 
 # --- 2. Install global IDE commands (cmdAdd) ---
-echo "--- Step 2/6: Global commands/cmdAdd/ ---"
+echo "--- Step 2/7: Global commands/cmdAdd/ ---"
 install_dir "$SCRIPT_DIR/commands/cmdAdd" "$CB_DIR/commands/cmdAdd" "commands/cmdAdd"
 echo ""
 
 # --- 3. Install global IDE commands (opsx) ---
-echo "--- Step 3/6: Global commands/opsx/ ---"
+echo "--- Step 3/7: Global commands/opsx/ ---"
 install_dir "$SCRIPT_DIR/commands/opsx" "$CB_DIR/commands/opsx" "commands/opsx"
 echo ""
 
 # --- 4. OpenSpec patches ---
-echo "--- Step 4/6: OpenSpec custom commands patch ---"
+echo "--- Step 4/7: OpenSpec custom commands patch ---"
 OPENSPEC_DIR="$CB_DIR/skills/openspec"
 
 if [[ ! -d "$OPENSPEC_DIR" ]]; then
@@ -243,7 +243,7 @@ fi
 echo ""
 
 # --- 5. MCP config merge ---
-echo "--- Step 5/6: MCP configuration ---"
+echo "--- Step 5/7: MCP configuration ---"
 MCP_FILE="$CB_DIR/mcp.json"
 MCP_EXAMPLE="$SCRIPT_DIR/mcp.json.example"
 
@@ -295,7 +295,7 @@ echo ""
 # --- 6. codegraph (CodeBuddy target) ---
 # codegraph 不走 ~/.codebuddy/mcp.json，需 npm 构建 + 自身写入 globalStorage。
 # 此步仅做指引/检测，不复制文件（详见 codegraph-patches/SETUP.md）。
-echo "--- Step 6/6: codegraph (CodeBuddy target) ---"
+echo "--- Step 6/7: codegraph (CodeBuddy target) ---"
 if command -v codegraph &>/dev/null; then
   ok "codegraph command found: $(command -v codegraph)"
   info "Run to (re)write CodeBuddy MCP config: codegraph install --target=codebuddy --location=global -y"
@@ -310,6 +310,35 @@ else
   info "Full guide: codegraph-patches/SETUP.md"
 fi
 warn "NOTE: codegraph writes CodeBuddy's globalStorage settings, NOT ~/.codebuddy/mcp.json."
+echo ""
+
+# --- 7. ponytail rule/commands + codebase-memory-mcp guidance ---
+echo "--- Step 7/7: ponytail (rule + commands) & codebase-memory-mcp ---"
+# 7a. ponytail：纯规则模式，拷 rule + 命令到 ~/.codebuddy/（低耦合追加）
+if [[ -f "$SCRIPT_DIR/ponytail/rules/ponytail.md" ]]; then
+  install_file "$SCRIPT_DIR/ponytail/rules/ponytail.md" "$CB_DIR/rules/ponytail.md" "rules/ponytail.md"
+fi
+if [[ -d "$SCRIPT_DIR/ponytail/commands" ]]; then
+  install_dir "$SCRIPT_DIR/ponytail/commands" "$CB_DIR/commands" "commands"
+fi
+
+# 7b. codebase-memory-mcp：二进制需官方装 + 手填 mcp.json，此处仅拷引导 rule + 打印指引
+if [[ -f "$SCRIPT_DIR/codebase-memory-patches/codebase-memory.md" ]]; then
+  install_file "$SCRIPT_DIR/codebase-memory-patches/codebase-memory.md" "$CB_DIR/rules/codebase-memory.md" "rules/codebase-memory.md"
+fi
+if command -v codebase-memory-mcp &>/dev/null; then
+  ok "codebase-memory-mcp found: $(command -v codebase-memory-mcp)"
+  info "Add to ~/.codebuddy/mcp.json: { command: <abs path>, args: [], type: stdio }; then index a repo."
+else
+  warn "codebase-memory-mcp not installed. To set up (one-time):"
+  echo "    1. Install binary (Windows): download & run install.ps1 from DeusData/codebase-memory-mcp"
+  echo "       (mac/linux: curl -fsSL .../install.sh | bash) — review the script first"
+  echo "    2. Find binary path; verify: echo '{}' | <binary> should print JSON"
+  echo "    3. Add to ~/.codebuddy/mcp.json mcpServers: { \"codebase-memory-mcp\": { \"command\": \"<abs path>\", \"args\": [], \"type\": \"stdio\" } }"
+  echo "    4. Restart CodeBuddy; index a project: codebase-memory-mcp cli index_repository '{\"repo_path\":\"<abs>\"}'"
+  info "Full guide: codebase-memory-patches/SETUP.md"
+fi
+warn "NOTE: codebase-memory-mcp overlaps with codegraph — enable only one per project to avoid double-indexing."
 echo ""
 
 # --- Summary ---

@@ -16,6 +16,8 @@
 | **context7** | MCP Server | 提供最新库文档查询（如查询 React/Vue 等最新 API） | ❌ 无（公开 URL） |
 | **code-review-graph** | MCP Server | 代码知识图谱，支持依赖分析、影响范围评估、语义搜索 | ⚠️ 需配置项目路径 |
 | **codegraph** | MCP Server | 预索引代码知识图谱（tree-sitter→本地 SQLite），替代 grep/read 省 token | ⚠️ 需 npm 构建 + `codegraph init` |
+| **codebase-memory-mcp** | MCP Server | 代码知识图谱（158 语言、LSP 级类型解析、14 工具），可替代 codegraph | ⚠️ 需装二进制 + 手填 mcp.json + 索引 |
+| **ponytail** | Rule + 命令 | 防过度工程：判断阶梯让 AI 优先用原生/标准库/最简实现 | ❌ 无（纯规则，零依赖） |
 
 ## 各组件详细说明
 
@@ -69,6 +71,19 @@
   codegraph 条目只是参考片段，照它手填到 `~/.codebuddy/mcp.json` **不生效**——应用
   `codegraph install --target=codebuddy --location=global -y` 让它自己写
 - 复现/安装步骤见 [`codegraph-patches/SETUP.md`](codegraph-patches/SETUP.md)
+
+**codebase-memory-mcp**（本地 MCP）：
+- [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) 代码知识图谱，单静态二进制、零依赖、数据全本地（`~/.cache/codebase-memory-mcp/`）
+- 158 语言 tree-sitter + 部分语言 LSP 级类型解析；14 个 MCP 工具（调用链/影响面/架构/Cypher/死代码/跨服务/ADR 等）
+- ⚠️ **与 codegraph 功能重叠**：建议二选一，启用本工具后把 codegraph 设 `disabled`，避免双份索引
+- ⚠️ 启动特殊：**无 `mcp`/`serve` 子命令，直接跑二进制就是 stdio server** → `args: []`；`command` 填二进制绝对路径
+- 官方 installer 不适配 CodeBuddy → 二进制按官方装、`~/.codebuddy/mcp.json` 手填、引导 rule 见 `codebase-memory-patches/`
+- 复现/安装步骤见 [`codebase-memory-patches/SETUP.md`](codebase-memory-patches/SETUP.md)
+
+**ponytail**（Rule + 命令，纯规则零依赖）：
+- 灵感来自 [ponytail](https://github.com/DietrichGebert/ponytail)，防过度工程：判断阶梯（需要存在吗→标准库→原生→已装依赖→一行→最小实现），且不牺牲安全/校验/错误处理/可访问性
+- always-on rule（`ponytail/rules/ponytail.md`）+ 5 个命令（`/ponytail`、`/ponytail-review`、`/ponytail-audit`、`/ponytail-debt`、`/ponytail-help`）
+- 官方的 Node lifecycle hooks（自动统计 gain）在 CodeBuddy 下不可用，已舍弃；核心能力用纯规则模式 100% 复刻
 
 ## 安装方式
 
@@ -181,6 +196,18 @@ dotfiles-codebuddy/
 │       ├── codebuddy.ts           # 新增：CodeBuddyTarget 实现
 │       ├── types.ts               # TargetId 加 'codebuddy'
 │       └── registry.ts            # 注册 codebuddyTarget
+├── codebase-memory-patches/       # codebase-memory-mcp 接入 CodeBuddy
+│   ├── SETUP.md                   # 换机复现：装二进制→手填 mcp.json→引导 rule→索引
+│   └── codebase-memory.md         # 引导 rule（拷到 ~/.codebuddy/rules/）
+├── ponytail/                      # 防过度工程规则集（纯规则复刻）
+│   ├── rules/
+│   │   └── ponytail.md            # always-on 判断阶梯 + 安全红线（拷到 ~/.codebuddy/rules/）
+│   └── commands/                  # 拷到 ~/.codebuddy/commands/
+│       ├── ponytail.md            → /ponytail（强度切换）
+│       ├── ponytail-review.md     → /ponytail-review
+│       ├── ponytail-audit.md      → /ponytail-audit
+│       ├── ponytail-debt.md       → /ponytail-debt
+│       └── ponytail-help.md       → /ponytail-help
 └── commands/                      # 全局 IDE 补全命令
     ├── cmdAdd/
     │   ├── cmd.md                 → /cmdAdd:cmd

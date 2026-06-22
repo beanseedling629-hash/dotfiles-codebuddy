@@ -22,6 +22,11 @@
         "${workspaceFolder}"
       ],
       "type": "stdio"
+    },
+    "codebase-memory-mcp": {
+      "command": "__CODEBASE_MEMORY_BIN__",
+      "args": [],
+      "type": "stdio"
     }
   }
 }
